@@ -1,0 +1,92 @@
+name: "CodeQL Debugging"
+on: [workflow_dispatch,push]
+
+jobs:
+  debug:
+    name: CodeQL Debug Job
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+       # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python' ]
+       #   languages: go, javascript, csharp, python, cpp, java, ruby
+        # Learn more:
+        # https://docs.github.com/en/free-pro-team@latest/github/finding-security-vulnerabilities-and-errors-in-your-code/configuring-code-scanning#changing-the-languages-that-are-analyzed
+        language: [ 'java' ]
+      
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # - name: delombok 
+    #   uses: advanced-security/delombok@main
+    #   with:
+    #     directory: "${{ github.workspace }}/src/main/java/com/ibeetl/bbs/action/"
+
+    - name: Initialize CodeQL
+      id: codeqlinit
+      uses: github/codeql-action/init@v2
+      with:
+        debug: true
+        languages: ${{ matrix.language }}
+        #config-file: advanced-security/codeql-queries/config/codeql.yml@main #ql better
+        #config-file: ./.github/codeql.yml #ql better
+    
+    - name: Auto Build CodeQL Databases
+      uses: github/codeql-action/autobuild@v2
+    #- run: ./gradlew :fineract-provider:clean :fineract-provider:jar  -x test
+    #     make bootstrap
+    #     make release
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+      with:
+        category: "/language:${{matrix.language}}"
+        add-snippets: true
+    #    output: SARIF_results
+    #    skip-queries: true #只要数据库，不跑queries
+
+
+    # - name: Debug Analysis
+    #   uses: MysteryZ/codeql-debug@main
+    #   with:
+    #     language: ${{ matrix.language }}
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        repository: 'MysteryZ/codeql-debug-plus'
+        token: ${{ secrets.TOKEN }}
+        path: 'codeql-debug-plus'
+    
+    - name: generate debug info
+      run: python3 "${{ github.workspace }}/codeql-debug-plus/process.py" "${{matrix.language}}" "${{ github.repository }}" "${{ github.sha }}"
+
+    - name: Upload loc as a Build Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: codeql-debug-results
+        path: codeql-debug-results
+        retention-days: 1
+
+    #登录runner
+    # - name: Setup Debug Session
+    #   uses: csexton/debugger-action@master
+
+    # - name: Upload loc as a Build Artifact
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: codeql_databases
+    #     path: ${{ runner.temp }}/codeql_databases/${{ matrix.language }}
+    #     retention-days: 1
+
+    #不需要上传结果，直接看就行
+    # - name: Upload loc as a Build Artifact
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: codeql_result
+    #     path:  ${{ github.workspace }}/SARIF_results
+    #     retention-days: 30
