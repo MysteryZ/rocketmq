@@ -57,22 +57,22 @@ jobs:
     #   uses: MysteryZ/codeql-debug@main
     #   with:
     #     language: ${{ matrix.language }}
-    - name: Checkout repository
-      uses: actions/checkout@v2
-      with:
-        repository: 'MysteryZ/codeql-debug-plus'
-        token: ${{ secrets.TOKEN }}
-        path: 'codeql-debug-plus'
+    # - name: Checkout repository
+    #   uses: actions/checkout@v2
+    #   with:
+    #     repository: 'MysteryZ/codeql-debug-plus'
+    #     token: ${{ secrets.TOKEN }}
+    #     path: 'codeql-debug-plus'
     
-    - name: generate debug info
-      run: python3 "${{ github.workspace }}/codeql-debug-plus/process.py" "${{matrix.language}}" "${{ github.repository }}" "${{ github.sha }}"
+    # - name: generate debug info
+    #   run: python3 "${{ github.workspace }}/codeql-debug-plus/process.py" "${{matrix.language}}" "${{ github.repository }}" "${{ github.sha }}"
 
-    - name: Upload loc as a Build Artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: codeql-debug-results
-        path: codeql-debug-results
-        retention-days: 1
+    # - name: Upload loc as a Build Artifact
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: codeql-debug-results
+    #     path: codeql-debug-results
+    #     retention-days: 1
 
     #登录runner
     # - name: Setup Debug Session
