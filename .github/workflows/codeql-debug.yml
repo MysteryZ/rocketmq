@@ -1,7 +1,7 @@
 name: "CodeQL Debugging"
 on: [workflow_dispatch,push]
 env:
-  SEMMLE_JAVA_EXTRACTOR_JVM_ARGS='-Xmx7g -Xms512m
+  SEMMLE_JAVA_EXTRACTOR_JVM_ARGS: -Xmx7g -Xms512m
 
 jobs:
   debug:
